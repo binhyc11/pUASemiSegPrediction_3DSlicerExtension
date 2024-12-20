@@ -17,6 +17,7 @@ from slicer import vtkMRMLScalarVolumeNode, vtkMRMLSegmentationNode
 
 try:
     import cv2, json, radiomics, os
+    import pickle
     from skimage import filters
     from radiomics import featureextractor
     import SimpleITK as sitk
@@ -24,12 +25,14 @@ try:
     from sklearn.preprocessing import StandardScaler
     from sklearn.svm import SVC
 
+
 except:
     slicer.util.pip_install('opencv-python')
     slicer.util.pip_install('scikit-image')
     slicer.util.pip_install('scikit-learn')
     slicer.util.pip_install('pyradiomics')
     import cv2, radiomics
+    import pickle
     from skimage import filters
     from radiomics import featureextractor
     from sklearn.preprocessing import StandardScaler
@@ -245,7 +248,8 @@ class semiSegPredictLogic(ScriptedLoadableModuleLogic):
         self.TEMP_IMG_DIR = self.root.replace('semiSegPredict',"temp_img.nrrd") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/temp_img.nrrd"
         self.TEMP_SEMI_ROI_DIR = self.root.replace('semiSegPredict',"temp_img.seg.nrrd") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/temp_img.seg.nrrd"
         self.PARAM_FILE_DIR = self.root.replace('semiSegPredict',"pUA_Params_stone_composition.yaml") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/pUA_Params_stone_composition.yaml"
-        self.TRAIN_JSON_DIR = self.root.replace('semiSegPredict',"pUA_11_train_sample.json") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/pUA_11_train_sample.json"
+        self.MODEL_DIR = self.root.replace('semiSegPredict',"model.pkl") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/model.pkl"
+        self.SCALER_DIR = self.root.replace('semiSegPredict',"scaler.pkl") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/scaler.pkl"
 
     def getParameterNode(self):
         return semiSegPredictParameterNode(super().getParameterNode())
@@ -372,40 +376,14 @@ class semiSegPredictLogic(ScriptedLoadableModuleLogic):
         features = np.asanyarray(features)
         return features, label
 
-    def getDependencies (self, selected_features):
-        """
-        Get classifier and scaler trained/calculated from training dataset
-        """
-        seed            = 2021
-        C               = 0.4
-        gamma           = 0.075
-        
-        with open(self.TRAIN_JSON_DIR, 'r') as file:
-            train_dataset = json.load(file)
-
-        train_ids, val_ids = self.get_train_val_id_from_fold (2, train_dataset)
-        train_data, train_label =  self.get_radiomics_label(train_ids, train_dataset)
-        
-        for i in val_ids:
-            train_ids.append(i)
-        train_data, train_label =  self.get_radiomics_label(train_ids, train_dataset)
-        
-        scaler = StandardScaler()
-        scaler.fit(train_data)
-        train_data = scaler.transform(train_data)
-        train_data = train_data[:, selected_features]
-
-        classifier = SVC(probability=True, random_state=seed, C=C, gamma=gamma)
-        classifier.fit(train_data, train_label)
-        return classifier, scaler
-
     def getPrediction(self, input_sample):
         """
         Get prediction from the pretrained pUA prediction model
         """
         features_selected_index = [20, 28, 214, 233, 323, 330, 420, 544, 605, 395] ### current set of features
-
-        model, scaler = self.getDependencies(features_selected_index)
+        
+        model = pickle.load(open(self.MODEL_DIR, 'rb'))
+        scaler = pickle.load(open(self.SCALER_DIR, 'rb'))
 
         input_sample = np.array([input_sample])
         input_sample  = scaler.transform(input_sample)
