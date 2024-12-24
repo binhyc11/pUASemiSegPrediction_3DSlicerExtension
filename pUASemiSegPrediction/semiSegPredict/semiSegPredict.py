@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-import sitkUtils
+# import sitkUtils
 
 import vtk, qt, slicer
 
@@ -22,8 +22,8 @@ try:
     from radiomics import featureextractor
     import SimpleITK as sitk
     import numpy as np
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.svm import SVC
+    # from sklearn.preprocessing import StandardScaler
+    # from sklearn.svm import SVC
 
 
 except:
@@ -35,8 +35,8 @@ except:
     import pickle
     from skimage import filters
     from radiomics import featureextractor
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.svm import SVC
+    # from sklearn.preprocessing import StandardScaler
+    # from sklearn.svm import SVC
     
 
 #
@@ -131,7 +131,7 @@ class semiSegPredictWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         # Create logic class. Logic implements all computations that should be possible to run
         # in batch mode, without a graphical user interface.
         self.logic = semiSegPredictLogic()
-
+        self.logic.showPrediction = self.addLog
         # Connections
 
         # These connections ensure that we update parameter node when scene is closed
@@ -226,6 +226,13 @@ class semiSegPredictWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
             # Compute output
             self.logic.process(self.ui.inputVolume.currentNode(), self.ui.inputRelativeSeg.currentNode())
 
+    def addLog(self, text):
+        """Append text to log window
+        """
+        self.ui.statusLabel.insertPlainText(text)
+        self.ui.statusLabel.insertPlainText("\n")
+        self.ui.statusLabel.insertPlainText("\n")
+
 #
 # semiSegPredictLogic
 #
@@ -250,6 +257,7 @@ class semiSegPredictLogic(ScriptedLoadableModuleLogic):
         self.PARAM_FILE_DIR = self.root.replace('semiSegPredict',"pUA_Params_stone_composition.yaml") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/pUA_Params_stone_composition.yaml"
         self.MODEL_DIR = self.root.replace('semiSegPredict',"model.pkl") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/model.pkl"
         self.SCALER_DIR = self.root.replace('semiSegPredict',"scaler.pkl") #"E:/6_Dissertation/3DSlicerExt_semiSeg_pUAPrediction/current (working)/scaler.pkl"
+        self.showPrediction = None
 
     def getParameterNode(self):
         return semiSegPredictParameterNode(super().getParameterNode())
@@ -439,6 +447,9 @@ class semiSegPredictLogic(ScriptedLoadableModuleLogic):
                 \n\nProcessing completed in {stopTime-startTime:.2f} seconds\
                 \n\nDisclaimer: Use at your own risk")
 
+        self.showPrediction(f"This is a {label} stone with the predicted probability of {prob}%\
+                \n\nProcessing completed in {stopTime-startTime:.2f} seconds\
+                \n\nDisclaimer: Use at your own risk")
 
 #
 # semiSegPredictTest
