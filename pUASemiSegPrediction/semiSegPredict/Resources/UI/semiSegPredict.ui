@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>331</width>
-    <height>242</height>
+    <width>311</width>
+    <height>497</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="ctkCollapsibleButton" name="inputsCollapsibleButton">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="ctkCollapsibleButton" name="segCollapsibleButton">
      <property name="text">
-      <string>Inputs</string>
+      <string>Segmentation task</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
@@ -27,7 +27,7 @@
       <item row="0" column="1">
        <widget class="qMRMLNodeComboBox" name="inputVolume">
         <property name="toolTip">
-         <string>Pick the input Volume to the algorithm.</string>
+         <string>Pick the input Volume</string>
         </property>
         <property name="nodeTypes">
          <stringlist notr="true">
@@ -58,7 +58,7 @@
       <item row="1" column="1">
        <widget class="qMRMLNodeComboBox" name="inputRelativeSeg">
         <property name="toolTip">
-         <string>Pick the input Relative Segmentation to the algorithm.</string>
+         <string>Pick an input Relative Segmentation</string>
         </property>
         <property name="nodeTypes">
          <stringlist notr="true">
@@ -79,37 +79,80 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QPushButton" name="applyButtonSeg">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Run the algorithm.</string>
+        </property>
+        <property name="text">
+         <string>Apply Semi-auto Segmentation</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="applyButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="toolTip">
-      <string>Run the algorithm.</string>
-     </property>
+   <item row="1" column="0">
+    <widget class="QTextEdit" name="statusSeg"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="ctkCollapsibleButton" name="predCollapsibleButton">
      <property name="text">
-      <string>Apply</string>
+      <string>Prediction task</string>
      </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Input segmentation:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="qMRMLNodeComboBox" name="inputSegPred">
+        <property name="toolTip">
+         <string>Pick an input Segmentation for Prediction</string>
+        </property>
+        <property name="nodeTypes">
+         <stringlist notr="true">
+          <string>vtkMRMLSegmentationNode</string>
+         </stringlist>
+        </property>
+        <property name="showChildNodeTypes">
+         <bool>false</bool>
+        </property>
+        <property name="addEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="removeEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="SlicerParameterName" stdset="0">
+         <string>inputVolume</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QPushButton" name="applyButtonPred">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Run the algorithm.</string>
+        </property>
+        <property name="text">
+         <string>Apply Prediction</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QTextEdit" name="statusLabel"/>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
+   <item row="3" column="0">
+    <widget class="QTextEdit" name="statusPred"/>
    </item>
   </layout>
  </widget>
@@ -163,6 +206,22 @@
     <hint type="destinationlabel">
      <x>312</x>
      <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>semiAutoSeg</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>inputSegPred</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>155</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
