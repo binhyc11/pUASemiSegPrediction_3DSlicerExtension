@@ -16,28 +16,36 @@ from slicer.parameterNodeWrapper import (
 from slicer import vtkMRMLScalarVolumeNode, vtkMRMLSegmentationNode
 
 
+
+import json, os, pickle
+import SimpleITK as sitk
+
 try:
-    import cv2, json, radiomics, os
-    import pickle
-    from skimage import filters
-    from radiomics import featureextractor
-    import SimpleITK as sitk
-    import numpy as np
-    # from sklearn.preprocessing import StandardScaler
-    # from sklearn.svm import SVC
-
-
+    import cv2
 except:
-    slicer.util.pip_install('opencv-python')
-    slicer.util.pip_install('scikit-image')
-    slicer.util.pip_install('scikit-learn')
-    slicer.util.pip_install('pyradiomics')
-    import cv2, radiomics
-    import pickle
+    slicer.util.pip_install('opencv-python==4.11.0.86')
+    import cv2
+
+try:
     from skimage import filters
+except:
+    slicer.util.pip_install('scikit-image==0.24.0')
+    from skimage import filters
+
+try:
+    import radiomics
     from radiomics import featureextractor
-    # from sklearn.preprocessing import StandardScaler
-    # from sklearn.svm import SVC
+except:
+    slicer.util.pip_install('pyradiomics==3.1.0')
+    import radiomics
+    from radiomics import featureextractor
+
+
+try:
+    import numpy as np
+except:
+    slicer.util.pip_install('numpy==1.26.4')
+    import numpy as np
     
 
 #
